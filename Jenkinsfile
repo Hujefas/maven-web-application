@@ -1,6 +1,6 @@
 pipeline {
-  agent any
-  stages{
+  agenet any
+  stages {
     stage('build') {
       sh 'mvn clean package'
     }
