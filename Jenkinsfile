@@ -1,8 +1,5 @@
 pipeline {
     agent any
-    tools {
-        maven: maven3
-    }
 
     environment {
         RECIPIENTS = 'hujefashaik346@gmail.com' // Replace with actual email address
