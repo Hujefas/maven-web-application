@@ -22,7 +22,7 @@ pipeline {
             steps {
                 script {
                     captureAndSendErrorLogs('Build') {
-                        sh 'mvn clean compile' for Maven
+                        sh 'mvn clean compile'
                     }
                 }
             }
@@ -31,7 +31,7 @@ pipeline {
             steps {
                 script {
                     captureAndSendErrorLogs('test') {
-                        sh 'mvnvtest'
+                        sh 'mvn test'
                     }
                 }
             }
