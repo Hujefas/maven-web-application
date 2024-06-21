@@ -50,7 +50,7 @@ pipeline {
                     try {
                         echo 'Testing...'
                         // Simulate test steps
-                        sh 'mvn test
+                        sh 'mvn'
                     } catch (Exception e) {
                         // Capture the log for the failing stage
                         def testLog = currentBuild.rawBuild.getLog(1000).join('\n')
