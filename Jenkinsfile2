@@ -60,27 +60,6 @@ pipeline {
                 }
             }
         }
-
-        stage('Deploy') {
-            steps {
-                script {
-                    try {
-                        echo 'Deploying...'
-                        // Simulate deployment steps
-                        sh 'exit 0' // Simulated success
-                    } catch (Exception e) {
-                        // Capture the log for the failing stage
-                        def deployLog = currentBuild.rawBuild.getLog(1000).join('\n')
-                        def logFile = "${LOGS_DIR}/deploy.log"
-                        writeFile file: logFile, text: deployLog
-                        // Store error stage and log file path for post-processing
-                        ERROR_STAGE = "Deploy"
-                        ERROR_LOG_FILE = logFile
-                        error "Deploy stage failed"
-                    }
-                }
-            }
-        }
     }
 
     post {
