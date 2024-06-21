@@ -39,27 +39,6 @@ pipeline {
                 }
             }
         }
-
-        stage('Test') {
-            steps {
-                script {
-                    try {
-                        echo 'Testing...'
-                        // Simulate test steps
-                        sh 'exit 0' // Simulated success
-                    } catch (Exception e) {
-                        // Capture the log for the failing stage
-                        def testLog = currentBuild.rawBuild.getLog(1000).join('\n')
-                        def logFile = "${LOGS_DIR}/test.log"
-                        writeFile file: logFile, text: testLog
-                        // Store error stage and log file path for post-processing
-                        ERROR_STAGE = "Test"
-                        ERROR_LOG_FILE = logFile
-                        error "Test stage failed"
-                    }
-                }
-            }
-        }
     }
 
     post {
