@@ -22,7 +22,7 @@ pipeline {
                 script {
                     try {
                         echo 'chechout scm'
-                        sh ' git branch: 'master', url: 'https://github.com/Hujefas/maven-web-application.git' '
+                        sh 'scm'
                      
                     } catch (Exception e) {
                         // Capture the log for the failing stage
