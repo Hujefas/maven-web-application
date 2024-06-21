@@ -25,7 +25,7 @@ pipeline {
                     try {
                         echo 'Building...'
                         // Simulate build steps
-                        sh 'exit 1' // Simulated failure
+                        sh 'exit 0' // Simulated success
                     } catch (Exception e) {
                         // Capture the log for the failing stage
                         def buildLog = currentBuild.rawBuild.getLog(1000).join('\n')
@@ -45,7 +45,7 @@ pipeline {
                     try {
                         echo 'Testing...'
                         // Simulate test steps
-                        sh 'exit 0' // Simulated success
+                        sh 'exit 1' // Simulated failure
                     } catch (Exception e) {
                         // Capture the log for the failing stage
                         def testLog = currentBuild.rawBuild.getLog(1000).join('\n')
