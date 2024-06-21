@@ -20,20 +20,7 @@ pipeline {
         stage('scm') {
             steps {
                 script {
-                    try {
-                        echo 'chechout scm'
-                        sh 'scm'
-                     
-                    } catch (Exception e) {
-                        // Capture the log for the failing stage
-                        def scmLog = currentBuild.rawBuild.getLog(1000).join('\n')
-                        def logFile = "${LOGS_DIR}/scm.log"
-                        writeFile file: logFile, text: scmLog
-                        // Store error stage and log file path for post-processing
-                        ERROR_STAGE = "scm"
-                        ERROR_LOG_FILE = logFile
-                        error "scm stage failed"
-                    }
+                    git branch: 'master', url: 'https://github.com/Hujefas/maven-web-application.git'
                 }
             }
         }
