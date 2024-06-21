@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        EMAIL_RECIPIENTS = 'hujefashaik346@gmail.com.com'
+        EMAIL_RECIPIENTS = 'hujefashaik346@gmail.com'
         EMAIL_SUBJECT = "Jenkins Job '${env.JOB_NAME}' (${env.BUILD_NUMBER}) Stage Failure Notification"
         LOGS_DIR = "${env.WORKSPACE}/error_logs"
         ERROR_STAGE = ""
