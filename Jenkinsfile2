@@ -1,1 +1,110 @@
+pipeline {
+    agent any
 
+    environment {
+        EMAIL_RECIPIENTS = 'hujefashaik346@gmail.com'
+        EMAIL_SUBJECT = "Jenkins Job '${env.JOB_NAME}' (${env.BUILD_NUMBER}) Stage Failure Notification"
+        LOGS_DIR = "${env.WORKSPACE}/error_logs"
+        ERROR_STAGE = ""
+        ERROR_LOG_FILE = ""
+    }
+
+    stages {
+        stage('Preparation') {
+            steps {
+                script {
+                    // Create a directory for storing error logs
+                    sh "mkdir -p ${LOGS_DIR}"
+                }
+            }
+        }
+
+        stage('Build') {
+            steps {
+                script {
+                    try {
+                        echo 'Building...'
+                        // Simulate build steps
+                        sh 'exit 1' // Simulated failure
+                    } catch (Exception e) {
+                        // Capture the log for the failing stage
+                        def buildLog = currentBuild.rawBuild.getLog(1000).join('\n')
+                        def logFile = "${LOGS_DIR}/build.log"
+                        writeFile file: logFile, text: buildLog
+                        // Store error stage and log file path for post-processing
+                        ERROR_STAGE = "Build"
+                        ERROR_LOG_FILE = logFile
+                        error "Build stage failed"
+                    }
+                }
+            }
+        }
+
+        stage('Test') {
+            steps {
+                script {
+                    try {
+                        echo 'Testing...'
+                        // Simulate test steps
+                        sh 'exit 0' // Simulated success
+                    } catch (Exception e) {
+                        // Capture the log for the failing stage
+                        def testLog = currentBuild.rawBuild.getLog(1000).join('\n')
+                        def logFile = "${LOGS_DIR}/test.log"
+                        writeFile file: logFile, text: testLog
+                        // Store error stage and log file path for post-processing
+                        ERROR_STAGE = "Test"
+                        ERROR_LOG_FILE = logFile
+                        error "Test stage failed"
+                    }
+                }
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                script {
+                    try {
+                        echo 'Deploying...'
+                        // Simulate deployment steps
+                        sh 'exit 0' // Simulated success
+                    } catch (Exception e) {
+                        // Capture the log for the failing stage
+                        def deployLog = currentBuild.rawBuild.getLog(1000).join('\n')
+                        def logFile = "${LOGS_DIR}/deploy.log"
+                        writeFile file: logFile, text: deployLog
+                        // Store error stage and log file path for post-processing
+                        ERROR_STAGE = "Deploy"
+                        ERROR_LOG_FILE = logFile
+                        error "Deploy stage failed"
+                    }
+                }
+            }
+        }
+    }
+
+    post {
+        failure {
+            script {
+                if (fileExists(ERROR_LOG_FILE)) {
+                    def errorLog = readFile(ERROR_LOG_FILE)
+                    
+                    def emailBody = """
+                        <p><b>Job:</b> ${env.JOB_NAME}</p>
+                        <p><b>Build Number:</b> ${env.BUILD_NUMBER}</p>
+                        <p><b>Build URL:</b> <a href="${env.BUILD_URL}">${env.BUILD_URL}</a></p>
+                        <h3>Failed Stage: ${ERROR_STAGE}</h3>
+                        <pre>${errorLog}</pre>
+                    """
+                    
+                    emailext(
+                        to: EMAIL_RECIPIENTS,
+                        subject: EMAIL_SUBJECT,
+                        body: emailBody,
+                        mimeType: 'text/html'
+                    )
+                }
+            }
+        }
+    }
+}
