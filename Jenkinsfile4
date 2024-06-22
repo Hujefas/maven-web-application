@@ -50,22 +50,6 @@ pipeline {
                 }
             }
         }
-
-        stage('Deploy') {
-            steps {
-                script {
-                    try {
-                        echo 'Deploying...'
-                        // Simulate deploy step
-                        sh 'mvn deploy' // Adjust the command to your deployment process
-                    } catch (Exception e) {
-                        // Capture the log for the failing stage
-                        captureErrorLog('Deploy')
-                        error "Deploy stage failed"
-                    }
-                }
-            }
-        }
     }
 
     post {
