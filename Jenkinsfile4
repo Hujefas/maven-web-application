@@ -1,0 +1,106 @@
+pipeline {
+    agent any
+
+    environment {
+        EMAIL_RECIPIENTS = 'hujefashaik346@gmail.com'
+        EMAIL_SUBJECT = "Jenkins Job '${env.JOB_NAME}' (${env.BUILD_NUMBER}) Failure Notification"
+        LOGS_DIR = "${env.WORKSPACE}/logs"
+        ERROR_STAGE = ""
+        ERROR_LOG_FILE = ""
+    }
+
+    stages {
+        stage('Preparation') {
+            steps {
+                script {
+                    // Ensure the logs directory exists
+                    sh "mkdir -p ${LOGS_DIR}"
+                }
+            }
+        }
+
+        stage('Build') {
+            steps {
+                script {
+                    try {
+                        echo 'Building...'
+                        // Simulate build step
+                        sh 'mvn clean compile' // Adjust the command to your build process
+                    } catch (Exception e) {
+                        // Capture the log for the failing stage
+                        captureErrorLog('Build')
+                        error "Build stage failed"
+                    }
+                }
+            }
+        }
+
+        stage('Test') {
+            steps {
+                script {
+                    try {
+                        echo 'Testing...'
+                        // Simulate test step
+                        sh 'mvn test' // Adjust the command to your test process
+                    } catch (Exception e) {
+                        // Capture the log for the failing stage
+                        captureErrorLog('Test')
+                        error "Test stage failed"
+                    }
+                }
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                script {
+                    try {
+                        echo 'Deploying...'
+                        // Simulate deploy step
+                        sh 'mvn deploy' // Adjust the command to your deployment process
+                    } catch (Exception e) {
+                        // Capture the log for the failing stage
+                        captureErrorLog('Deploy')
+                        error "Deploy stage failed"
+                    }
+                }
+            }
+        }
+    }
+
+    post {
+        failure {
+            script {
+                if (fileExists(ERROR_LOG_FILE)) {
+                    def errorLog = readFile(ERROR_LOG_FILE)
+                    
+                    def emailBody = """
+                        <p><b>Job:</b> ${env.JOB_NAME}</p>
+                        <p><b>Build Number:</b> ${env.BUILD_NUMBER}</p>
+                        <p><b>Build URL:</b> <a href="${env.BUILD_URL}">${env.BUILD_URL}</a></p>
+                        <h3>Failed Stage: ${ERROR_STAGE}</h3>
+                        <pre>${errorLog}</pre>
+                    """
+                    
+                    emailext(
+                        to: EMAIL_RECIPIENTS,
+                        subject: EMAIL_SUBJECT,
+                        body: emailBody,
+                        mimeType: 'text/html'
+                    )
+                }
+            }
+        }
+    }
+}
+
+// Helper function to capture error logs
+def captureErrorLog(stageName) {
+    def logFile = "${LOGS_DIR}/${stageName.toLowerCase()}.log"
+    // Capture the stage log and write to the file
+    def stageLog = currentBuild.rawBuild.getLog(1000).join('\n')
+    writeFile file: logFile, text: stageLog
+    // Set the environment variables for post-processing
+    env.ERROR_STAGE = stageName
+    env.ERROR_LOG_FILE = logFile
+}
